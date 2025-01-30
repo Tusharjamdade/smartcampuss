@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { name, email, phone, password, role } = await req.json();
+    const { name, email, phone, password, role, confirmpassword } = await req.json();
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -13,14 +13,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
 
-    // Create user without confirm password field
+    // Create user with confirmPassword (even though it's not typically recommended)
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         phone,
-        password, // Store the password directly without encryption (not recommended)
-        confirmpassword:password,
+        password, // Store the password as is (consider hashing it)
+        confirmpassword: confirmpassword, // Store the confirm password directly
         role,
       },
     });

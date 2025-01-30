@@ -1,0 +1,47 @@
+import Link from 'next/link';
+import React from 'react';
+import { FaUtensils, FaWallet, FaCoffee } from 'react-icons/fa';
+
+function Page() {
+  return (
+    <div className="min-h-screen bg-gray-100 p-6 mt-20">
+      <div className="max-w-screen-lg mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        
+        {/* Canteen Card 1 */}
+        <Link href={"/user/home/canteen"}>
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+          <div className="p-6 flex flex-col items-center text-center">
+            <FaUtensils className="text-blue-600 text-4xl mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">Canteen Meal Plan</h3>
+            <p className="text-gray-600 mb-4">Get your daily meals at discounted rates with the canteen meal plan. Choose from various options.</p>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 focus:outline-none">Learn More</button>
+          </div>
+        </div>
+        </Link>
+
+        {/* Canteen Card 2 */}
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+          <div className="p-6 flex flex-col items-center text-center">
+            <FaWallet className="text-green-600 text-4xl mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">Canteen Wallet</h3>
+            <p className="text-gray-600 mb-4">Load money into your canteen wallet and enjoy easy payments for meals and snacks.</p>
+            <button className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 focus:outline-none">Add Funds</button>
+          </div>
+        </div>
+
+        {/* Canteen Card 3 */}
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+          <div className="p-6 flex flex-col items-center text-center">
+            <FaCoffee className="text-brown-600 text-4xl mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">Coffee Subscription</h3>
+            <p className="text-gray-600 mb-4">Enjoy your favorite coffees every day with the canteen's coffee subscription service.</p>
+            <button className="bg-brown-600 text-white px-4 py-2 rounded-full hover:bg-brown-700 focus:outline-none">Subscribe Now</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+export default Page;

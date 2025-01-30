@@ -20,6 +20,7 @@ function Page() {
         </Link>
 
         {/* Canteen Card 2 */}
+        <Link href={"/user/home/xerox"}>
         <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
           <div className="p-6 flex flex-col items-center text-center">
             <FaWallet className="text-green-600 text-4xl mb-4" />
@@ -28,6 +29,7 @@ function Page() {
             <button className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 focus:outline-none">Add Funds</button>
           </div>
         </div>
+        </Link>
 
         {/* Canteen Card 3 */}
         <div className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-all duration-300">

@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id              Int        @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   name            String
-  email           String     @unique
-  phone           String     @unique
+  email           String        @unique
+  phone           String        @unique
   password        String
   confirmpassword String
-  role            String     @default("user")
-  store           Store?
+  role            String        @default("user")
+  store           XeroxStore?
+  canteen         CanteenStore?
   printjob        PrintJob[]
 }
 
-model Store {
+model XeroxStore {
   id        Int    @id @default(autoincrement())
   storeName String
   location  String
@@ -27,13 +28,28 @@ model Store {
   userId    Int    @unique
 }
 
+model CanteenStore {
+  id        Int    @id @default(autoincrement())
+  storeName String
+  location  String
+  user      User   @relation(fields: [userId], references: [id])
+  userId    Int    @unique
+  menu      Menu[]
+}
+
+model Menu {
+  id        Int          @id @default(autoincrement())
+  item      String
+  price     String       // Fixed spelling mistake (was 'prise')
+  canteen   CanteenStore @relation(fields: [canteenId], references: [id])
+  canteenId Int          // Removed @unique so multiple menus can exist
+}
 model PrintJob {
-  id            Int     @id @default(autoincrement())
-  paymentAmount Int
-  document      Bytes
-  isCompleted   Boolean @default(false)
-  format        String  
-  colour        String  @default("black-white")
-  user          User    @relation(fields: [userId], references: [id])
-  userId        Int     @unique
+  id          Int     @id @default(autoincrement())
+  document    Bytes
+  isCompleted Boolean @default(false)
+  format      String
+  colour      String  @default("black-white")
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int  // Removed @unique to allow multiple print jobs per user
 }

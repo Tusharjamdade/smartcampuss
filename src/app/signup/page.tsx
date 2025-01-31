@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 export default function AdminRegister() {
   const [name, setName] = useState("");
@@ -15,6 +16,7 @@ export default function AdminRegister() {
   const [confirmpassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("user");
   const [error, setError] = useState("");
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +36,14 @@ export default function AdminRegister() {
         body: JSON.stringify(registerData),
       });
       const data = await res.json();
+      console.log(JSON.stringify(data.user.id))
 
       if (res.status === 201) {
-        alert("Registration successful!");
+        // alert("Registration successful!");
+        if(role == "admin"){
+            router.push(`shop?id=${data.user.id}`)
+        }
+
         // You can redirect to login page or perform other actions as needed
       } else {
         setError(data.error || "Registration failed");

@@ -1,21 +1,41 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, MapPin, Phone, Mail, User } from "lucide-react"
+"use client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock, MapPin, Phone, Mail, User } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function AdminInfo() {
+  const searchParams = useSearchParams();
+  
+  // Extract user and shop info from query params
+  const userParam = searchParams.get("user");
+  const parsedUser = userParam ? JSON.parse(decodeURIComponent(userParam)) : null;
+
+  // Fallback if user is not present or query is malformed
+  if (!parsedUser) {
+    return <div>Loading...</div>;
+  }
+
+  // Extract additional store information
+  const storeName = parsedUser.storeName || "N/A";
+  const location = parsedUser.location || "N/A";
+  const ownerName = parsedUser.user?.name || "N/A";
+  const ownerEmail = parsedUser.user?.email || "N/A";
+  const ownerPhone = parsedUser.user?.phone || "N/A";
+
   return (
     <Card className="card-shadow">
       <CardHeader className="bg-primary text-white rounded-t-lg">
         <CardTitle className="text-2xl">Xerox Shop Information</CardTitle>
       </CardHeader>
       <CardContent className="mt-4 space-y-4">
-        <InfoItem icon={User} label="Owner" value="John Doe" />
-        <InfoItem icon={MapPin} label="Location" value="Student Center, Room 101" />
-        <InfoItem icon={Clock} label="Hours" value="Mon-Fri, 8:00 AM - 6:00 PM" />
-        <InfoItem icon={Phone} label="Contact" value="(555) 123-4567" />
-        <InfoItem icon={Mail} label="Email" value="print@campusquickprint.com" />
+        <InfoItem icon={User} label="Owner" value={ownerName} />
+        <InfoItem icon={MapPin} label="Location" value={location} />
+        <InfoItem icon={Clock} label="Store Name" value={storeName} />
+        <InfoItem icon={Phone} label="Contact" value={ownerPhone} />
+        <InfoItem icon={Mail} label="Email" value={ownerEmail} />
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function InfoItem({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
@@ -27,5 +47,5 @@ function InfoItem({ icon: Icon, label, value }: { icon: any; label: string; valu
         <p className="text-base font-semibold">{value}</p>
       </div>
     </div>
-  )
+  );
 }

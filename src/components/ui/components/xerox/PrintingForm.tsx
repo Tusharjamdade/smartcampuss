@@ -1,38 +1,85 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Upload } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 export default function PrintingForm() {
+  const { data: session } = useSession();
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    paymentMethod: "",
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+    phone: session?.user?.phone || "",
     file: null as File | null,
-  })
+    colour: "black-white", // Default value
+    format: "single-sided", // Default value
+  });
+
+  useEffect(() => {
+    if (session?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: session.user.name || "",
+        email: session.user.email || "",
+      }));
+    }
+  }, [session]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData((prev) => ({ ...prev, file: e.target.files![0] }))
+    if (e.target.files && e.target.files.length > 0) {
+      setFormData((prev) => ({ ...prev, file: e.target.files[0] }));
     }
-  }
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
-    alert("Print job submitted successfully!")
-  }
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.file) {
+      alert("Please upload a PDF file.");
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("file", formData.file);
+      formDataToSend.append("colour", formData.colour);
+      formDataToSend.append("format", formData.format);
+      formDataToSend.append("userId", session?.user?.id || "");
+
+      await axios.post("/api/admin/xerox/uplode", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert("Print job submitted successfully!");
+      setFormData((prev) => ({ ...prev, file: null })); // Reset file input
+    } catch (error) {
+      console.error("Error submitting print job:", error);
+      alert("Failed to submit print job.");
+    }
+  };
 
   return (
     <Card className="card-shadow">
@@ -42,68 +89,7 @@ export default function PrintingForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-              Name
-            </Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="w-full"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
-            </Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              className="w-full"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-              Phone
-            </Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-              className="w-full"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="paymentMethod" className="text-sm font-medium text-gray-700">
-              Payment Method
-            </Label>
-            <Select
-              name="paymentMethod"
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, paymentMethod: value }))}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="credit">Credit Card</SelectItem>
-                <SelectItem value="debit">Debit Card</SelectItem>
-                <SelectItem value="cash">Cash on Delivery</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="file" className="text-sm font-medium text-gray-700">
-              Upload PDF
-            </Label>
+            <Label htmlFor="file">Upload PDF</Label>
             <div className="flex items-center space-x-2">
               <Input
                 id="file"
@@ -117,11 +103,45 @@ export default function PrintingForm() {
               <Upload className="h-5 w-5 text-primary" />
             </div>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="colour">Colour</Label>
+            <Select
+              value={formData.colour}
+              onValueChange={(value) => handleSelectChange("colour", value)}
+              required
+              className="w-full"
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Colour" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="black-white">Black-and-White</SelectItem>
+                <SelectItem value="colourful">Colourful</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="format">Format</Label>
+            <Select
+              value={formData.format}
+              onValueChange={(value) => handleSelectChange("format", value)}
+              required
+              className="w-full"
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="single-sided">Single-Sided</SelectItem>
+                <SelectItem value="back-to-back">Back-to-Back</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button type="submit" className="w-full bg-primary hover:bg-primary-dark text-white">
             Submit Print Job
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

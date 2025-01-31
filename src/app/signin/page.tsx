@@ -31,7 +31,7 @@ export default function SignInPage() {
       setError(result.error); // Display error message
     } else {
       console.log("Sign in successful");
-      router.push("/"); // Redirect to home page after successful sign-in
+      router.push("/user/home"); // Redirect to home page after successful sign-in
     }
   };
 

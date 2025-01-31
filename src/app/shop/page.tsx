@@ -208,26 +208,6 @@ export default function AdminDashboard() {
 //   const handleShopDataSubmit = async (data: ShopData) => {
 //     const endpoint = data.shopType === "canteen" ? "/api/admin/canteen" : "/api/admin/xerox";
   
-//     try {
-//       const response = await fetch(endpoint, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(data),
-//       });
-  
-//       if (!response.ok) {
-//         throw new Error(`Failed to submit ${data.shopType} data`);
-//       }
-  
-//       const result = await response.json();
-//       console.log("Shop data submitted successfully:", result);
-//       setShopData(result);
-//     } catch (error) {
-//       console.error("Error submitting shop data:", error);
-//     }
-//   };
 const handleShopDataSubmit = async (data: ShopData) => {
     if (!userId) {
       console.error("User ID is missing in the URL");
@@ -235,10 +215,10 @@ const handleShopDataSubmit = async (data: ShopData) => {
     }
   
     try {
-      let xeroxResult = null;
+      let result = null;
   
       if (data.shopType === "xerox") {
-        const xeroxResponse = await fetch("/api/admin/xerox", {
+        const response = await fetch("/api/admin/xerox", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -248,33 +228,32 @@ const handleShopDataSubmit = async (data: ShopData) => {
           }),
         });
   
-        if (!xeroxResponse.ok) throw new Error("Failed to submit Xerox data");
+        if (!response.ok) throw new Error("Failed to submit Xerox data");
   
-        xeroxResult = await xeroxResponse.json();
+        result = await response.json();
+      } else {
+        // Submit data to the Canteen API with menu items
+        const response = await fetch("/api/admin/canteen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: parseInt(userId, 10),
+            storeName: data.shopName,
+            location: data.address,
+            menu: data.menuItems.map((item) => ({
+              item: item.name, // Fix: Use correct property
+              price: item.price.toString(), // Ensure price is a string
+            })),
+          }),
+        });
+  
+        if (!response.ok) throw new Error("Failed to submit Canteen data");
+  
+        result = await response.json();
       }
   
-      // Submit data to the Canteen API
-      const canteenResponse = await fetch("/api/admin/canteen", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: parseInt(userId, 10),
-          storeName: data.shopName,
-          location: data.address,
-          menu: data.menuItems?.map((item) => ({
-            item: item.item,
-            price: item.price.toString(), // Ensure price is a string
-          })) || [],
-        }),
-      });
-  
-      if (!canteenResponse.ok) throw new Error("Failed to submit Canteen data");
-  
-      const canteenResult = await canteenResponse.json();
-  
-      console.log("Shop data submitted successfully:", { xeroxResult, canteenResult });
-  
-      setShopData({ xerox: xeroxResult, canteen: canteenResult });
+      console.log("Shop data submitted successfully:", result);
+      setShopData(result);
     } catch (error) {
       console.error("Error submitting shop data:", error);
     }

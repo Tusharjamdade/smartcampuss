@@ -46,3 +46,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ msg: "Error processing request" }, { status: 500 });
   }
 }
+
+
+
+// GET all print jobs
+export async function GET() {
+  try {
+    const printJobs = await prisma.printJob.findMany({
+      select: {
+        id: true,
+        userId: true,
+        format: true,
+        colour: true,
+        isCompleted: true,
+      },
+    });
+
+    return NextResponse.json(printJobs, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching print jobs:", error);
+    return NextResponse.json({ msg: "Error retrieving print jobs" }, { status: 500 });
+  }
+}

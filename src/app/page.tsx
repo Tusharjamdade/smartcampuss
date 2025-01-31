@@ -23,7 +23,7 @@ export default function Home() {
   // Render nothing or a loading state if `isOnline` is not yet determined
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center mt-20">
       {/* {status === "authenticated" ? JSON.stringify(session) : "logout"} */}
       <BackgroundBeamsWithCollision>
         <div className="flex flex-col items-center justify-center min-h-full">

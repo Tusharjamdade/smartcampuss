@@ -18,6 +18,7 @@ model User {
   store           XeroxStore?
   canteen         CanteenStore?
   printjob        PrintJob[]
+  tablebookings     TableBookings[]
 }
 
 model XeroxStore {
@@ -37,6 +38,14 @@ model CanteenStore {
   menu      Menu[]
 }
 
+model TableBookings{
+id        Int    @id @default(autoincrement())
+user      User   @relation(fields: [userId], references: [id])
+userId    Int    @unique
+name      String
+selectedSeats   String 
+}
+
 model Menu {
   id        Int          @id @default(autoincrement())
   item      String
@@ -53,3 +62,4 @@ model PrintJob {
   user        User    @relation(fields: [userId], references: [id])
   userId      Int  // Removed @unique to allow multiple print jobs per user
 }
+
